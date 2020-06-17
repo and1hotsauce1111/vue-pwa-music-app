@@ -9,7 +9,20 @@ module.exports = {
       alias: {
         '@': resolve('src'),
         common: resolve('src/common'),
-        components: resolve('src/components')
+        components: resolve('src/components'),
+        api: resolve('src/api')
+      }
+    }
+  },
+  devServer: {
+    proxy: {
+      '/api': {
+        target: 'https://u.y.qq.com/cgi-bin/',
+        changeOrigin: true,
+        ws: true,
+        pathRewrite: {
+          '^/api': ''
+        }
       }
     }
   }
