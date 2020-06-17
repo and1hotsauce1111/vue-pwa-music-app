@@ -1,7 +1,15 @@
 <template>
   <div class="recommend">
     <div class="recommend-content">
-      <div class="slider-wrapper"></div>
+      <div class="slider-wrapper">
+        <slider v-if="recommends.length">
+          <div v-for="item in recommends" :key="item.content_id">
+            <a href="javascript:;">
+              <img :src="item.cover" alt />
+            </a>
+          </div>
+        </slider>
+      </div>
       <div class="recommend-list">
         <h1 class="list-title">熱門歌單推薦</h1>
         <ul></ul>
@@ -11,84 +19,74 @@
 </template>
 
 <script type="text/ecmascript-6">
+import Slider from 'base/slider/slider'
 import { getRecommend } from 'api/recommend'
 
 export default {
+  components: {
+    Slider
+  },
+  data() {
+    return {
+      recommends: []
+    }
+  },
   created() {
     getRecommend().then(res => {
-      console.log(res)
+      console.log(res.recomPlaylist.data.v_hot)
+      this.recommends = res.recomPlaylist.data.v_hot
     })
   }
 }
 </script>
 
 <style lang="stylus" scoped rel="stylesheet/stylus">
-@import '~common/stylus/variable';
+@import '~common/stylus/variable'
 
-.recommend {
-  position: fixed;
-  width: 100%;
-  top: 5.5rem;
-  bottom: 0;
-
-  .recommend-content {
-    height: 100%;
-    overflow: hidden;
-
-    .slider-wrapper {
-      position: relative;
-      width: 100%;
-      overflow: hidden;
-    }
-
-    .recommend-list {
-      .list-title {
-        height: 4.06rem;
-        line-height: 4.06rem;
-        text-align: center;
-        font-size: $font-size-medium;
-        color: $color-theme;
-      }
-
-      .item {
-        display: flex;
-        box-sizing: border-box;
-        align-items: center;
-        padding: 0 1.25rem 1.25rem 1.25rem;
-
-        .icon {
-          flex: 0 0 60px;
-          width: 4.06rem;
-          padding-right: 1.25rem;
-        }
-
-        .text {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          flex: 1;
-          line-height: 1.25rem;
-          overflow: hidden;
-          font-size: $font-size-medium;
-
-          .name {
-            margin-bottom: 10px;
-            color: $color-text;
-          }
-
-          .desc {
-            color: $color-text-d;
-          }
-        }
-      }
-    }
-
-    .loading-container {
-      position: absolute;
-      width: 100%;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-  }
-}
+.recommend
+  position fixed
+  width 100%
+  top 5.5rem
+  bottom 0
+  .recommend-content
+    height 100%
+    overflow hidden
+    .slider-wrapper
+      position relative
+      width 100%
+      overflow hidden
+    .recommend-list
+      .list-title
+        height 4.06rem
+        line-height 4.06rem
+        text-align center
+        font-size $font-size-medium
+        color $color-theme
+      .item
+        display flex
+        box-sizing border-box
+        align-items center
+        padding 0 1.25rem 1.25rem 1.25rem
+        .icon
+          flex 0 0 60px
+          width 4.06rem
+          padding-right 1.25rem
+        .text
+          display flex
+          flex-direction column
+          justify-content center
+          flex 1
+          line-height 1.25rem
+          overflow hidden
+          font-size $font-size-medium
+          .name
+            margin-bottom 10px
+            color $color-text
+          .desc
+            color $color-text-d
+    .loading-container
+      position absolute
+      width 100%
+      top 50%
+      transform translateY(-50%)
 </style>
