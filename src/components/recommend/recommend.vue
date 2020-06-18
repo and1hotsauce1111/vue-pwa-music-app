@@ -1,41 +1,67 @@
 <template>
   <div class="recommend">
-    <div class="recommend-content">
-      <div class="slider-wrapper">
-        <slider v-if="recommends.length">
-          <div v-for="item in recommends" :key="item.content_id">
-            <a href="javascript:;">
-              <img :src="item.cover" alt />
-            </a>
-          </div>
-        </slider>
+    <scroll ref="scroll" class="recommend-content" :data="recomPlayList">
+      <div>
+        <div class="slider-wrapper">
+          <slider v-if="recommends.length">
+            <div v-for="item in recommends" :key="item.content_id">
+              <a href="javascript:;">
+                <img @load="bannerImgLoad" :src="item.cover" alt />
+              </a>
+            </div>
+          </slider>
+        </div>
+        <div class="recommend-list">
+          <h1 class="list-title">熱門歌單推薦</h1>
+          <ul>
+            <li class="item" v-for="(item, index) in recomPlayList" :key="index">
+              <div class="icon">
+                <img width="60" height="60" v-lazy="item.cover" alt />
+              </div>
+              <div class="text">
+                <h2 class="name">{{ item.username }}</h2>
+                <p class="desc">{{ item.title }}</p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-      <div class="recommend-list">
-        <h1 class="list-title">熱門歌單推薦</h1>
-        <ul></ul>
+      <div class="laoding-container" v-show="!recomPlayList.length">
+        <loading />
       </div>
-    </div>
+    </scroll>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 import Slider from 'base/slider/slider'
+import Scroll from 'base/scroll/scroll'
+import Loading from 'base/loading/loading'
 import { getRecommend } from 'api/recommend'
 
 export default {
   components: {
-    Slider
+    Slider,
+    Scroll,
+    Loading
   },
   data() {
     return {
-      recommends: []
+      recommends: [],
+      recomPlayList: []
     }
   },
   created() {
     getRecommend().then(res => {
-      console.log(res.recomPlaylist.data.v_hot)
       this.recommends = res.recomPlaylist.data.v_hot
+      this.recomPlayList = res.recomPlaylist.data.v_hot
     })
+  },
+  methods: {
+    bannerImgLoad() {
+      // 避免因為獲取非同步資料時 造成better-scroll計算錯誤
+      this.$refs.scroll.refresh()
+    }
   }
 }
 </script>
@@ -68,7 +94,7 @@ export default {
         align-items center
         padding 0 1.25rem 1.25rem 1.25rem
         .icon
-          flex 0 0 60px
+          flex 0 0 3.75rem
           width 4.06rem
           padding-right 1.25rem
         .text

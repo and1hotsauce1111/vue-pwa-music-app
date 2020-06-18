@@ -6,11 +6,16 @@ import store from './store'
 import 'common/stylus/index.styl'
 import fastclick from 'fastclick'
 import axios from 'axios'
+import VueLazyLoad from 'vue-lazyload'
 
 Vue.config.productionTip = false
 
 fastclick.attach(document.body)
 Vue.prototype.$axios = axios
+
+Vue.use(VueLazyLoad, {
+  loading: require('common/image/default.png')
+})
 
 new Vue({
   router,
