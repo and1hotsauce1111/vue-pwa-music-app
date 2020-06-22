@@ -24,6 +24,14 @@ module.exports = {
         pathRewrite: {
           '^/api': ''
         }
+      },
+      '/qqapi': {
+        target: 'https://api.zsfmyz.top/',
+        changeOrigin: true,
+        ws: true,
+        pathRewrite: {
+          '^/qqapi': ''
+        }
       }
     }
   }

@@ -20,6 +20,7 @@
             v-for="(item, index) in group.items"
             :key="index"
             class="list-group-item"
+            @click="selectSinger(item)"
           >
             <img class="avatar" v-lazy="item.avatar" alt />
             <span class="name">{{ item.name }}</span>
@@ -128,6 +129,9 @@ export default {
     this.probeType = 3
   },
   methods: {
+    selectSinger(item) {
+      this.$emit('selectSinger', item)
+    },
     onShortcutTouchStart(e) {
       const anchorIndex = getData(e.target, 'index')
       const fisrtTouch = e.touches[0]
