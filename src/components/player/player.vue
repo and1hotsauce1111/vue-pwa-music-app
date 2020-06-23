@@ -21,7 +21,7 @@
         <div class="middle">
           <div class="middle-l">
             <div class="cd-wrapper" ref="cdWrapper">
-              <div class="cd">
+              <div class="cd" :class="cdRotate">
                 <img class="image" :src="currentSong.image" />
               </div>
             </div>
@@ -32,14 +32,14 @@
             <div class="icon i-left">
               <i class="icon-sequence"></i>
             </div>
-            <div class="icon i-left">
-              <i class="icon-prev"></i>
+            <div class="icon i-left" :class="disableIcon">
+              <i class="icon-prev" @click="prev"></i>
             </div>
-            <div class="icon i-center">
-              <i class="icon-play"></i>
+            <div class="icon i-center" :class="disableIcon">
+              <i @click="togglePlaying" :class="playIcon"></i>
             </div>
-            <div class="icon i-right">
-              <i class="icon-next"></i>
+            <div class="icon i-right" :class="disableIcon">
+              <i class="icon-next" @click="next"></i>
             </div>
             <div class="icon i-right">
               <i class="icon icon-not-favorite"></i>
@@ -51,18 +51,29 @@
     <transition name="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
         <div class="icon">
-          <img width="40" height="40" :src="currentSong.image" />
+          <img
+            :class="cdRotate"
+            width="40"
+            height="40"
+            :src="currentSong.image"
+          />
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"></h2>
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control"></div>
-        <div class="control">
-          <i class="icon-playlist"></i>
+        <div class="control" @click.stop="togglePlaying">
+          <i :class="miniIcon"></i>
         </div>
       </div>
     </transition>
+    <audio
+      ref="audio"
+      :src="currentSong.url"
+      @canplay="ready"
+      @error="error"
+    ></audio>
   </div>
 </template>
 
@@ -74,8 +85,38 @@ import { prefixStyle } from 'common/js/dom'
 const transform = prefixStyle('transform')
 
 export default {
+  data() {
+    return {
+      songReady: false
+    }
+  },
   computed: {
-    ...mapGetters(['fullScreen', 'playlist', 'currentSong'])
+    playIcon() {
+      return this.playing ? 'icon-pause' : 'icon-play'
+    },
+    miniIcon() {
+      return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+    },
+    cdRotate() {
+      return this.playing ? 'play' : 'play pause'
+    },
+    disableIcon() {
+      return this.songReady ? '' : 'disable'
+    },
+    ...mapGetters(['fullScreen', 'playlist', 'currentSong', 'playing', 'currentIndex'])
+  },
+  watch: {
+    currentSong() {
+      this.$nextTick(() => {
+        this.$refs.audio.play()
+      })
+    },
+    playing(newPlaying) {
+      const audio = this.$refs.audio
+      this.$nextTick(() => {
+        newPlaying ? audio.play() : audio.pause()
+      })
+    }
   },
   methods: {
     enter(el, done) {
@@ -123,6 +164,35 @@ export default {
     open() {
       this.setFullScreen(true)
     },
+    ready() {
+      this.songReady = true
+    },
+    error() {
+      alert('該歌曲載入錯誤，將導回歌曲列表！')
+      this.$router.push({
+        path: '/singer'
+      })
+    },
+    togglePlaying() {
+      if (!this.songReady) return false
+      this.setPlayingState(!this.playing)
+    },
+    next() {
+      if (!this.songReady) return false
+      let index = this.currentIndex + 1
+      if (index === this.playlist.length) index = 0
+      this.setCurrentIndex(index)
+      if (!this.playing) this.togglePlaying()
+      this.songReady = false
+    },
+    prev() {
+      if (!this.songReady) return false
+      let index = this.currentIndex - 1
+      if (index === -1) index = this.playlist.length - 1
+      this.setCurrentIndex(index)
+      if (!this.playing) this.togglePlaying()
+      this.songReady = false
+    },
     _getPosAndScale() {
       const targetWidth = 40
       const paddingLeft = 40
@@ -138,7 +208,11 @@ export default {
         scale
       }
     },
-    ...mapMutations({ setFullScreen: 'SET_FULL_SCREEN' })
+    ...mapMutations({
+      setFullScreen: 'SET_FULL_SCREEN',
+      setPlayingState: 'SET_PLAYING_STATE',
+      setCurrentIndex: 'SET_CURRENT_INDEX'
+    })
   }
 }
 </script>
