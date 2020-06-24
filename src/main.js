@@ -11,6 +11,7 @@ import VueLazyLoad from 'vue-lazyload'
 Vue.config.productionTip = false
 
 fastclick.attach(document.body)
+axios.defaults.baseURL = 'http://localhost:8080'
 Vue.prototype.$axios = axios
 
 Vue.use(VueLazyLoad, {

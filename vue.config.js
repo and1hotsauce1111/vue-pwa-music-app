@@ -18,7 +18,7 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': {
-        target: 'https://u.y.qq.com/cgi-bin/',
+        target: 'https://u.y.qq.com/',
         changeOrigin: true,
         ws: true,
         pathRewrite: {

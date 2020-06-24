@@ -3,7 +3,7 @@ import { ERR_OK, options } from './config'
 import { formatUrl } from 'common/js/formatUrl'
 
 export async function getRecommend() {
-  const url = '/api/musics.fcg?-=recom14552685588515413'
+  const url = '/api/cgi-bin/musics.fcg?-=recom14552685588515413'
 
   const params = Object.assign({}, options, {
     sign: 'zzaepu1h7akmjdgcff15c4441255ee9ef959d8dacccc3f88',
@@ -39,7 +39,11 @@ export async function getRecommend() {
         method: 'get_new_album_area',
         param: {}
       },
-      toplist: { module: 'musicToplist.ToplistInfoServer', method: 'GetAll', param: {} },
+      toplist: {
+        module: 'musicToplist.ToplistInfoServer',
+        method: 'GetAll',
+        param: {}
+      },
       focus: {
         module: 'music.musicHall.MusicHallPlatform',
         method: 'GetFocus',
