@@ -31,18 +31,17 @@
           <div class="progress-wrapper">
             <span class="time time-l">{{ _formatTime(currentTime) }}</span>
             <div class="progress-bar-wrapper">
-              <progress-bar
-                :percent="percent"
-                v-on:percentChange="onProgressBarChange"
-              />
+              <progress-bar :percent="percent" v-on:percentChange="onProgressBarChange" />
             </div>
-            <span class="time time-r">{{
+            <span class="time time-r">
+              {{
               _formatTime(currentSong.duration)
-            }}</span>
+              }}
+            </span>
           </div>
           <div class="operators">
-            <div class="icon i-left">
-              <i class="icon-sequence"></i>
+            <div class="icon i-left" @click="changeMode">
+              <i :class="iconMode"></i>
             </div>
             <div class="icon i-left" :class="disableIcon">
               <i class="icon-prev" @click="prev"></i>
@@ -63,12 +62,7 @@
     <transition name="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
         <div class="icon">
-          <img
-            :class="cdRotate"
-            width="40"
-            height="40"
-            :src="currentSong.image"
-          />
+          <img :class="cdRotate" width="40" height="40" :src="currentSong.image" />
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"></h2>
@@ -88,6 +82,7 @@
       @canplay="ready"
       @error="error"
       @timeupdate="updateTime"
+      @ended="end"
     ></audio>
   </div>
 </template>
@@ -98,6 +93,8 @@ import animations from 'create-keyframe-animation'
 import { prefixStyle } from 'common/js/dom'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
+import { playMode } from 'common/js/config'
+import { shuffle } from 'common/js/utils'
 
 const transform = prefixStyle('transform')
 
@@ -127,19 +124,32 @@ export default {
     disableIcon() {
       return this.songReady ? '' : 'disable'
     },
+    /* eslint-disable */
+    iconMode() {
+      return this.mode === playMode.sequence
+        ? 'icon-sequence'
+        : this.mode === playMode.loop
+        ? 'icon-loop'
+        : 'icon-random'
+    },
+    /* eslint-enable */
     percent() {
       return this.currentTime / this.currentSong.duration
     },
     ...mapGetters([
       'fullScreen',
       'playlist',
+      'sequenceList',
       'currentSong',
       'playing',
-      'currentIndex'
+      'currentIndex',
+      'mode',
+      'sequence'
     ])
   },
   watch: {
-    currentSong() {
+    currentSong(newVal, oldVal) {
+      if (newVal.id === oldVal.id) return false
       this.$nextTick(() => {
         this.$refs.audio.play()
       })
@@ -193,6 +203,18 @@ export default {
       this.$refs.cdWrapper.style.transition = ''
       this.$refs.cdWrapper.style[transform] = ''
     },
+    changeMode() {
+      const mode = (this.mode + 1) % 3
+      this.setPlayMode(mode)
+      let list = null
+      if (mode === playMode.random) {
+        list = shuffle(this.sequenceList)
+      } else {
+        list = this.sequenceList
+      }
+      this.resetCurrentIndex(list)
+      this.setPlayList(list)
+    },
     back() {
       this.setFullScreen(false)
     },
@@ -228,12 +250,28 @@ export default {
       if (!this.playing) this.togglePlaying()
       this.songReady = false
     },
+    end() {
+      if (this.mode === playMode.loop) {
+        this.loop()
+      } else {
+        this.next()
+      }
+    },
+    loop() {
+      this.$refs.audio.currentTime = 0
+      this.$refs.audio.play()
+    },
     updateTime(e) {
       this.currentTime = e.target.currentTime
     },
     onProgressBarChange(percent) {
       this.$refs.audio.currentTime = this.currentSong.duration * percent
       if (!this.playing) this.togglePlaying()
+    },
+    // 為了切換播放模式時 保持當前播放的song index
+    resetCurrentIndex(list) {
+      const index = list.findIndex(item => item.id === this.currentSong.id)
+      this.setCurrentIndex(index)
     },
     _formatTime(interval) {
       interval = interval | 0
@@ -267,7 +305,9 @@ export default {
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX'
+      setCurrentIndex: 'SET_CURRENT_INDEX',
+      setPlayMode: 'SET_PLAY_MODE',
+      setPlayList: 'SET_PLAYLIST'
     })
   }
 }
