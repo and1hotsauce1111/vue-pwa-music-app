@@ -3,17 +3,12 @@
     ref="listview"
     class="listview"
     :data="data"
-    :listenScroll="listenScroll"
-    :probeType="probeType"
-    v-on:scroll="scroll"
+    :listen-scroll="listenScroll"
+    :probe-type="probeType"
+    @scroll="scroll"
   >
     <ul>
-      <li
-        v-for="(group, index) in data"
-        :key="index"
-        ref="listGroup"
-        class="list-group"
-      >
+      <li v-for="(group, index) in data" :key="index" ref="listGroup" class="list-group">
         <h2 class="list-group-title">{{ group.title }}</h2>
         <ul>
           <li
@@ -30,8 +25,9 @@
     </ul>
     <div
       class="list-shortcut"
-      @touchstart="onShortcutTouchStart"
+      @touchstart.stop.prevent="onShortcutTouchStart"
       @touchmove.stop.prevent="onShortcutTouchMove"
+      @touchend.stop
     >
       <ul>
         <li
@@ -40,9 +36,7 @@
           class="item"
           :class="[item, { current: currentIndex === index }]"
           :data-index="index"
-        >
-          {{ item }}
-        </li>
+        >{{ item }}</li>
       </ul>
     </div>
     <div v-show="fixedTitle" class="list-fixed" ref="fixed">
@@ -88,7 +82,9 @@ export default {
     },
     fixedTitle() {
       if (this.scrollY > 0) return ''
-      return this.data[this.currentIndex] ? this.data[this.currentIndex].title : ''
+      return this.data[this.currentIndex]
+        ? this.data[this.currentIndex].title
+        : ''
     }
   },
   watch: {
@@ -113,10 +109,11 @@ export default {
           return false
         }
       }
-      this.currentIndex = this.listHeight - 2
+      this.currentIndex = listHeight.length - 2
     },
     diff(newVal) {
-      const fixedTop = (newVal > 0 && newVal < TITLE_HEIGHT) ? newVal - TITLE_HEIGHT : 0
+      const fixedTop =
+        newVal > 0 && newVal < TITLE_HEIGHT ? newVal - TITLE_HEIGHT : 0
       if (this.fixedTop === fixedTop) return false
       this.fixedTop = fixedTop
       this.$refs.fixed.style.transform = `translate3d(0,${fixedTop}px,0)`
@@ -142,12 +139,15 @@ export default {
     onShortcutTouchMove(e) {
       const firstTouch = e.touches[0]
       this.touch.y2 = firstTouch.pageY
-      const delta = Math.floor((this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT)
+      const delta = ((this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT) | 0
       const anchorIndex = parseInt(this.touch.anchorIndex) + delta
       this._scrollTo(anchorIndex)
     },
     scroll(pos) {
       this.scrollY = pos.y
+    },
+    refresh() {
+      this.$refs.listview.refresh()
     },
     _scrollTo(index) {
       if (!index && index !== 0) return false

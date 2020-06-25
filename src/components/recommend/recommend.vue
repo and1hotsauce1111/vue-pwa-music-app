@@ -1,5 +1,5 @@
 <template>
-  <div class="recommend">
+  <div class="recommend" ref="recommend">
     <scroll ref="scroll" class="recommend-content" :data="recomPlayList">
       <div>
         <div class="slider-wrapper">
@@ -38,8 +38,10 @@ import Slider from 'base/slider/slider'
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
 import { getRecommend } from 'api/recommend'
+import { playlistMixin } from 'common/js/mixin'
 
 export default {
+  mixins: [playlistMixin],
   components: {
     Slider,
     Scroll,
@@ -60,6 +62,11 @@ export default {
   methods: {
     bannerImgLoad() {
       // 避免因為獲取非同步資料時 造成better-scroll計算錯誤
+      this.$refs.scroll.refresh()
+    },
+    handlePlaylist(playlist) {
+      const bottom = playlist.length > 0 ? '60px' : 0
+      this.$refs.recommend.style.bottom = bottom
       this.$refs.scroll.refresh()
     }
   }

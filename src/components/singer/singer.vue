@@ -1,9 +1,10 @@
 <template>
-  <div class="singer">
+  <div class="singer" ref="singer">
     <list-view
       :data="singerList"
       :shortCut="shortCut"
       v-on:selectSinger="selectSinger"
+      ref="listview"
     ></list-view>
     <router-view></router-view>
   </div>
@@ -15,11 +16,13 @@ import { ERR_OK } from 'api/config'
 import ListView from 'base/listview/listview'
 import Singer from 'common/js/singer'
 import { mapMutations } from 'vuex'
+import { playlistMixin } from 'common/js/mixin'
 
 const HOT_NAME = '热门'
 const HOT_SINGER_LEN = 10
 
 export default {
+  mixins: [playlistMixin],
   components: {
     ListView
   },
@@ -94,6 +97,11 @@ export default {
       }
       ret.sort((a, b) => a.title.charCodeAt(0) - b.title.charCodeAt(0))
       return hot.concat(ret)
+    },
+    handlePlaylist(playlist) {
+      const bottom = playlist.length > 0 ? '60px' : 0
+      this.$refs.singer.style.bottom = bottom
+      this.$refs.listview.refresh()
     },
     ...mapMutations({
       setSinger: 'SET_SINGER'
