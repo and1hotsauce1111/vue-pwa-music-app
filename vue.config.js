@@ -25,6 +25,17 @@ module.exports = {
           '^/api': ''
         }
       },
+      '/cApi': {
+        target: 'https://c.y.qq.com',
+        changeOrigin: true,
+        secure: false,
+        pathRewrite: {
+          '^/cApi': ''
+        },
+        headers: {
+          referer: 'https://y.qq.com/'
+        }
+      },
       '/qqapi': {
         target: 'https://api.zsfmyz.top/',
         changeOrigin: true,

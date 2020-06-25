@@ -1,5 +1,6 @@
 import axios from 'axios'
-import { ERR_OK, options } from './config'
+import jsonp from 'common/js/jsonp'
+import { ERR_OK, options, commonParams } from './config'
 import { formatUrl } from 'common/js/formatUrl'
 
 export async function getRecommend() {
@@ -58,4 +59,26 @@ export async function getRecommend() {
   if (status === 200 && data.code === ERR_OK) {
     return data
   }
+}
+
+export async function getSongList(disstid) {
+  const url = '/cApi/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+
+  const data = Object.assign({}, commonParams, {
+    disstid,
+    type: 1,
+    json: 1,
+    utf8: 1,
+    onlysong: 0,
+    platform: 'yqq',
+    hostUin: 0,
+    needNewCode: 0
+  })
+
+  const option = {
+    param: 'jsonpCallback',
+    prefix: 'playlistinfoCallback'
+  }
+
+  return jsonp(url, data, option)
 }
