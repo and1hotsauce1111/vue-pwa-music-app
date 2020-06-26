@@ -26,7 +26,7 @@ module.exports = {
         }
       },
       '/cApi': {
-        target: 'https://c.y.qq.com',
+        target: 'https://c.y.qq.com/',
         changeOrigin: true,
         secure: false,
         pathRewrite: {
