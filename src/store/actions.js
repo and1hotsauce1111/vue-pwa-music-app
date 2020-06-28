@@ -73,6 +73,29 @@ export const insertSong = function({ commit, state }, song) {
   commit(types.SET_PLAYING_STATE, true)
 }
 
+export const deleteSong = function({ commit, state }, song) {
+  const playlist = state.playlist.slice()
+  const sequenceList = state.sequenceList.slice()
+  let currentIndex = state.currentIndex
+
+  const pIndex = findIndex(playlist, song)
+  playlist.splice(pIndex, 1)
+
+  const sIndex = findIndex(sequenceList, song)
+  sequenceList.splice(sIndex, 1)
+
+  if (currentIndex > pIndex || currentIndex === playlist.length) {
+    currentIndex--
+  }
+
+  commit(types.SET_PLAYLIST, playlist)
+  commit(types.SET_SEQUENCE_LIST, sequenceList)
+  commit(types.SET_CURRENT_INDEX, currentIndex)
+
+  const playingState = playlist.length > 0
+  commit(types.SET_PLAYING_STATE, playingState)
+}
+
 export const saveSearchHistory = function({ commit }, query) {
   commit(types.SET_SEARCH_HISTORY, saveSearch(query))
 }
@@ -83,4 +106,11 @@ export const deleteSearchHistory = function({ commit }, query) {
 
 export const clearSearchHistory = function({ commit }) {
   commit(types.SET_SEARCH_HISTORY, clearSearch())
+}
+
+export const deleteSongList = function({ commit }) {
+  commit(types.SET_PLAYLIST, [])
+  commit(types.SET_SEQUENCE_LIST, [])
+  commit(types.SET_CURRENT_INDEX, -1)
+  commit(types.SET_PLAYING_STATE, false)
 }
