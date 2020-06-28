@@ -1,7 +1,11 @@
 <template>
   <div class="search">
     <div class="search-box-wrapper">
-      <search-box ref="searchBox" v-on:query="onQueryChange" v-on:clearSuggest="clear"></search-box>
+      <search-box
+        ref="searchBox"
+        v-on:query="onQueryChange"
+        v-on:clearSuggest="clear"
+      ></search-box>
     </div>
     <div class="shortcut-wrapper" v-show="!query" ref="shortcutWrapper">
       <scroll class="shortcut" :data="shortcut" ref="shortcut">
@@ -26,7 +30,11 @@
                 <i class="icon-clear"></i>
               </span>
             </h1>
-            <search-list :searches="searchHistory" @select="addQuery" @delete="deleteSearchHistory"></search-list>
+            <search-list
+              :searches="searchHistory"
+              @select="addQuery"
+              @delete="deleteSearchHistory"
+            ></search-list>
           </div>
         </div>
       </scroll>
@@ -40,7 +48,12 @@
         ref="suggest"
       />
     </div>
-    <confirm ref="confirm" text="是否清空所有搜索歷史" confirmBtnText="清空" @confirm="clearSearchHistory" />
+    <confirm
+      ref="confirm"
+      text="是否清空所有搜索歷史"
+      confirmBtnText="清空"
+      @confirm="clearSearchHistory"
+    />
     <router-view></router-view>
   </div>
 </template>
@@ -53,11 +66,11 @@ import Confirm from 'base/confirm/confirm'
 import Scroll from 'base/scroll/scroll'
 import { getHotKey } from 'api/search'
 import { ERR_OK } from 'api/config'
-import { mapActions, mapGetters } from 'vuex'
-import { playlistMixin } from 'common/js/mixin'
+import { mapActions } from 'vuex'
+import { playlistMixin, searchMixin } from 'common/js/mixin'
 
 export default {
-  mixins: [playlistMixin],
+  mixins: [playlistMixin, searchMixin],
   components: {
     SearchBox,
     Suggest,
@@ -67,13 +80,10 @@ export default {
   },
   data() {
     return {
-      hotKey: [],
-      query: '',
-      clearSuggest: false
+      hotKey: []
     }
   },
   computed: {
-    ...mapGetters(['searchHistory']),
     shortcut() {
       return this.hotKey.concat(this.searchHistory)
     }
@@ -91,18 +101,6 @@ export default {
     this._getHotKey()
   },
   methods: {
-    onQueryChange(query) {
-      this.query = query
-    },
-    addQuery(query) {
-      this.$refs.searchBox.setQuery(query)
-    },
-    blurInput() {
-      this.$refs.searchBox.blur()
-    },
-    saveSearch() {
-      this.saveSearchHistory(this.query)
-    },
     clear() {
       this.clearSuggest = true
     },
@@ -124,8 +122,6 @@ export default {
       })
     },
     ...mapActions([
-      'saveSearchHistory',
-      'deleteSearchHistory',
       'clearSearchHistory'
     ])
   }

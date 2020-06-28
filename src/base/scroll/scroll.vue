@@ -27,11 +27,11 @@ export default {
     },
     pullup: {
       type: Boolean,
-      default: false
+      default: true
     },
     beforeScroll: {
       type: Boolean,
-      default: false
+      default: true
     }
   },
   mounted() {

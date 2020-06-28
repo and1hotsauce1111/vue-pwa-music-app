@@ -125,7 +125,7 @@ export default {
       this.$emit('select')
     },
     listScroll() {
-      this.$meit('listScroll')
+      this.$emit('listScroll')
     },
     refresh() {
       this.$refs.suggest.refresh()
@@ -137,7 +137,6 @@ export default {
       }
       if (data.song) {
         this.result.concat(ret)
-        console.log(this.result)
         this._normalizeSongs(data.song.list).forEach(song => {
           song.then(res => {
             this.result.push(res)
