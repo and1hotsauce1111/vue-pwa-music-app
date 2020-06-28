@@ -56,3 +56,15 @@ export function prefixStyle(style) {
 
   return vendor + style.charAt(0).toUpperCase() + style.substr(1)
 }
+
+export function debounce(fn, delay) {
+  let timer = null
+  return function(...args) {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => {
+      fn.apply(this, args)
+    }, delay)
+  }
+}

@@ -1,7 +1,20 @@
 <template>
-  <scroll class="suggest" :data="result" :pullup="pullup" @scrollToEnd="searchMore" ref="suggest">
+  <scroll
+    class="suggest"
+    :data="result"
+    :pullup="pullup"
+    :beforeScroll="beforeScroll"
+    @scrollToEnd="searchMore"
+    @beforeScroll="listScroll"
+    ref="suggest"
+  >
     <ul class="suggest-list" v-show="result.length === resultNum">
-      <li class="suggest-item" v-for="(item, index) in result" :key="index">
+      <li
+        class="suggest-item"
+        v-for="(item, index) in result"
+        :key="index"
+        @click="selectItem(item)"
+      >
         <div class="icon">
           <i :class="getIconClass(item)"></i>
         </div>
@@ -10,6 +23,9 @@
         </div>
       </li>
     </ul>
+    <div class="no-result-wrapper" v-show="!hasMore && !result.length">
+      <no-result title="抱歉，暫時搜索結果"></no-result>
+    </div>
     <loading v-show="hasMore && result.length !== 0" title />
     <div class="loading-container" v-show="result.length < resultNum">
       <loading />
@@ -18,11 +34,14 @@
 </template>
 
 <script type="ecmascript-6">
+import { mapMutations, mapActions } from 'vuex'
 import { search } from 'api/search'
 import { ERR_OK } from 'api/config'
 import { createSong } from 'common/js/song'
 import Loading from 'base/loading/loading'
 import Scroll from 'base/scroll/scroll'
+import Singer from 'common/js/singer'
+import NoResult from 'base/no-result/no-result'
 
 const TYPE_SINGER = 'singer'
 const PER_PAGE = 20
@@ -30,7 +49,8 @@ const PER_PAGE = 20
 export default {
   components: {
     Loading,
-    Scroll
+    Scroll,
+    NoResult
   },
   props: {
     query: {
@@ -40,6 +60,10 @@ export default {
     showSinger: {
       type: Boolean,
       default: true
+    },
+    clearSuggest: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -48,12 +72,16 @@ export default {
       result: [],
       resultNum: 0,
       pullup: true,
-      hasMore: true
+      hasMore: true,
+      beforeScroll: true
     }
   },
   watch: {
     query() {
       this.search()
+    },
+    clearSuggest() {
+      this.result = []
     }
   },
   methods: {
@@ -80,6 +108,28 @@ export default {
         }
       })
     },
+    selectItem(item) {
+      if (item.type === TYPE_SINGER) {
+        const singer = new Singer({
+          id: item.signermid,
+          name: item.singername
+        })
+        this.$router.push({
+          path: `/search/${singer.id}`
+        })
+        this.setSinger(singer)
+      } else {
+        this.insertSong(item)
+      }
+      // 儲存歷史搜索歷史
+      this.$emit('select')
+    },
+    listScroll() {
+      this.$meit('listScroll')
+    },
+    refresh() {
+      this.$refs.suggest.refresh()
+    },
     _genResult(data) {
       const ret = []
       if (data.zhida && data.zhida.singerid) {
@@ -87,6 +137,7 @@ export default {
       }
       if (data.song) {
         this.result.concat(ret)
+        console.log(this.result)
         this._normalizeSongs(data.song.list).forEach(song => {
           song.then(res => {
             this.result.push(res)
@@ -125,7 +176,11 @@ export default {
       } else {
         return `${item.name}-${item.singer}`
       }
-    }
+    },
+    ...mapMutations({
+      setSinger: 'SET_SINGER'
+    }),
+    ...mapActions(['insertSong'])
   }
 }
 </script>
