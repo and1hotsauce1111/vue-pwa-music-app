@@ -1,14 +1,10 @@
 <template>
   <div class="search">
     <div class="search-box-wrapper">
-      <search-box
-        ref="searchBox"
-        v-on:query="onQueryChange"
-        v-on:clearSuggest="clear"
-      ></search-box>
+      <search-box ref="searchBox" v-on:query="onQueryChange" v-on:clearSuggest="clear"></search-box>
     </div>
     <div class="shortcut-wrapper" v-show="!query" ref="shortcutWrapper">
-      <scroll class="shortcut" :data="shortcut" ref="shortcut">
+      <scroll :refreshDelay="refreshDelay" class="shortcut" :data="shortcut" ref="shortcut">
         <div>
           <div class="hot-key">
             <h1 class="title">熱門搜索</h1>
@@ -30,11 +26,7 @@
                 <i class="icon-clear"></i>
               </span>
             </h1>
-            <search-list
-              :searches="searchHistory"
-              @select="addQuery"
-              @delete="deleteSearchHistory"
-            ></search-list>
+            <search-list :searches="searchHistory" @select="addQuery" @delete="deleteSearchHistory"></search-list>
           </div>
         </div>
       </scroll>
@@ -48,12 +40,7 @@
         ref="suggest"
       />
     </div>
-    <confirm
-      ref="confirm"
-      text="是否清空所有搜索歷史"
-      confirmBtnText="清空"
-      @confirm="clearSearchHistory"
-    />
+    <confirm ref="confirm" text="是否清空所有搜索歷史" confirmBtnText="清空" @confirm="clearSearchHistory" />
     <router-view></router-view>
   </div>
 </template>
@@ -121,9 +108,7 @@ export default {
         }
       })
     },
-    ...mapActions([
-      'clearSearchHistory'
-    ])
+    ...mapActions(['clearSearchHistory'])
   }
 }
 </script>

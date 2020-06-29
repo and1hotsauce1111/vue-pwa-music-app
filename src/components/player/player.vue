@@ -34,11 +34,7 @@
               <div class="playing-lyric">{{ playingLyric }}</div>
             </div>
           </div>
-          <scroll
-            class="middle-r"
-            ref="lyricList"
-            :data="currentLyric && currentLyric.lines"
-          >
+          <scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
             <div class="lyric-wrapper">
               <div v-if="currentLyric">
                 <p
@@ -47,9 +43,7 @@
                   ref="lyricLine"
                   v-for="(line, index) in currentLyric.lines"
                   :key="index"
-                >
-                  {{ line.txt }}
-                </p>
+                >{{ line.txt }}</p>
               </div>
             </div>
           </scroll>
@@ -57,22 +51,14 @@
         <div class="bottom">
           <div class="dot-wrapper">
             <span class="dot" :class="{ active: currentShow === 'cd' }"></span>
-            <span
-              class="dot"
-              :class="{ active: currentShow === 'lyric' }"
-            ></span>
+            <span class="dot" :class="{ active: currentShow === 'lyric' }"></span>
           </div>
           <div class="progress-wrapper">
             <span class="time time-l">{{ _formatTime(currentTime) }}</span>
             <div class="progress-bar-wrapper">
-              <progress-bar
-                :percent="percent"
-                v-on:percentChange="onProgressBarChange"
-              />
+              <progress-bar :percent="percent" v-on:percentChange="onProgressBarChange" />
             </div>
-            <span class="time time-r">
-              {{ _formatTime(currentSong.duration) }}
-            </span>
+            <span class="time time-r">{{ _formatTime(currentSong.duration) }}</span>
           </div>
           <div class="operators">
             <div class="icon i-left" @click="changeMode">
@@ -97,12 +83,7 @@
     <transition name="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
         <div class="icon">
-          <img
-            :class="cdRotate"
-            width="40"
-            height="40"
-            :src="currentSong.image"
-          />
+          <img :class="cdRotate" width="40" height="40" :src="currentSong.image" />
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"></h2>
@@ -135,7 +116,7 @@ import animations from 'create-keyframe-animation'
 import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/scroll'
 import Playlist from 'components/playlist/playlist'
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import { prefixStyle } from 'common/js/dom'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
@@ -181,11 +162,7 @@ export default {
     percent() {
       return this.currentTime / this.currentSong.duration
     },
-    ...mapGetters([
-      'fullScreen',
-      'playing',
-      'currentIndex'
-    ])
+    ...mapGetters(['fullScreen', 'playing', 'currentIndex'])
   },
   watch: {
     currentSong(newVal, oldVal) {
@@ -264,6 +241,7 @@ export default {
     },
     ready() {
       this.songReady = true
+      this.savePlayHistory(this.currentSong)
     },
     error() {
       alert('該歌曲載入錯誤，將導回歌曲列表！')
@@ -335,10 +313,15 @@ export default {
       if (Math.abs(deltaY) > Math.abs(deltaX)) return false
       // 歌詞區塊距離播放區塊的left值
       const left = this.currentShow === 'cd' ? 0 : -window.innerWidth
-      const offsetWidth = Math.min(0, Math.max(-window.innerWidth, left + deltaX))
+      const offsetWidth = Math.min(
+        0,
+        Math.max(-window.innerWidth, left + deltaX)
+      )
       this.touch.percent = Math.abs(offsetWidth / window.innerWidth)
       // 修改歌詞區塊移動
-      this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
+      this.$refs.lyricList.$el.style[
+        transform
+      ] = `translate3d(${offsetWidth}px,0,0)`
       this.$refs.lyricList.$el.style[transitionDuration] = 0
       // 修改播放區塊顯示
       this.$refs.cdPlay.style.opacity = 1 - this.touch.percent
@@ -367,8 +350,12 @@ export default {
       }
 
       const TRANSITION_TIME = 500
-      this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
-      this.$refs.lyricList.$el.style[transitionDuration] = `${TRANSITION_TIME}ms`
+      this.$refs.lyricList.$el.style[
+        transform
+      ] = `translate3d(${offsetWidth}px,0,0)`
+      this.$refs.lyricList.$el.style[
+        transitionDuration
+      ] = `${TRANSITION_TIME}ms`
       this.$refs.cdPlay.style.opacity = opacity
       this.$refs.cdPlay.style[transitionDuration] = `${TRANSITION_TIME}ms`
     },
@@ -386,16 +373,19 @@ export default {
       this.setCurrentIndex(index)
     },
     getLyric(songid) {
-      this.currentSong.getLyric(songid).then(lyric => {
-        this.currentLyric = new Lyric(lyric, this.handleLyric)
-        if (this.playing) {
-          this.currentLyric.play()
-        }
-      }).catch(() => {
-        this.currentLyric = null
-        this.playingLyric = ''
-        this.currentLineNum = 0
-      })
+      this.currentSong
+        .getLyric(songid)
+        .then(lyric => {
+          this.currentLyric = new Lyric(lyric, this.handleLyric)
+          if (this.playing) {
+            this.currentLyric.play()
+          }
+        })
+        .catch(() => {
+          this.currentLyric = null
+          this.playingLyric = ''
+          this.currentLineNum = 0
+        })
     },
     handleLyric({ lineNum, txt }) {
       this.currentLineNum = lineNum
@@ -438,7 +428,8 @@ export default {
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN'
-    })
+    }),
+    ...mapActions(['savePlayHistory'])
   }
 }
 </script>

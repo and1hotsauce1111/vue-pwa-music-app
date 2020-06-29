@@ -67,7 +67,8 @@ export const searchMixin = {
   data() {
     return {
       query: '',
-      clearSuggest: false
+      clearSuggest: false,
+      refreshDelay: 100
     }
   },
   computed: {
