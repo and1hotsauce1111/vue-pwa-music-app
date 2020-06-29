@@ -74,7 +74,11 @@
               <i class="icon-next" @click="next"></i>
             </div>
             <div class="icon i-right">
-              <i class="icon icon-not-favorite"></i>
+              <i
+                class="icon"
+                :class="getFavoriteIcon(currentSong)"
+                @click="toggleFavorite(currentSong)"
+              ></i>
             </div>
           </div>
         </div>
@@ -103,7 +107,7 @@
     <audio
       ref="audio"
       :src="currentSong.url"
-      @canplay="ready"
+      @play="ready"
       @error="error"
       @timeupdate="updateTime"
       @ended="end"
@@ -173,7 +177,8 @@ export default {
         this.currentLyric.stop()
       }
       // 使用setTimeout 因為有些手機播放切換時會有js執行的延遲
-      setTimeout(() => {
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
         this.$refs.audio.play()
         this.getLyric(newVal.id)
       }, 1000)
@@ -260,25 +265,27 @@ export default {
       if (!this.songReady) return false
       if (this.playlist.length === 1) {
         this.loop()
+        return false
       } else {
         let index = this.currentIndex + 1
         if (index === this.playlist.length) index = 0
         this.setCurrentIndex(index)
         if (!this.playing) this.togglePlaying()
-        this.songReady = false
       }
+      this.songReady = false
     },
     prev() {
       if (!this.songReady) return false
       if (this.playlist.length === 1) {
         this.loop()
+        return false
       } else {
         let index = this.currentIndex - 1
         if (index === -1) index = this.playlist.length - 1
         this.setCurrentIndex(index)
         if (!this.playing) this.togglePlaying()
-        this.songReady = false
       }
+      this.songReady = false
     },
     end() {
       if (this.mode === playMode.loop) {
@@ -376,6 +383,7 @@ export default {
       this.currentSong
         .getLyric(songid)
         .then(lyric => {
+          if (this.currentSong.lyric !== lyric) return false
           this.currentLyric = new Lyric(lyric, this.handleLyric)
           if (this.playing) {
             this.currentLyric.play()
