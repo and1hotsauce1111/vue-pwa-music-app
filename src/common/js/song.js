@@ -1,16 +1,16 @@
-import axios from 'axios'
-import { getLyric } from 'api/song'
+import { ERR_OK } from 'api/config'
+import { getLyric, getPlayUrl } from 'api/song'
 
 export default class Song {
-  constructor({ id, mid, singer, name, album, duration, image, url }) {
-    this.id = id
-    this.mid = mid
-    this.singer = singer
+  constructor({ musicrid, rid, artist, name, album, albumid, duration, pic }) {
+    this.musicrid = musicrid
+    this.rid = rid
+    this.artist = artist
     this.name = name
     this.album = album
+    this.albumid = albumid
     this.duration = duration
-    this.image = image
-    this.url = url
+    this.pic = pic
   }
 
   getLyric() {
@@ -19,46 +19,42 @@ export default class Song {
     }
 
     return new Promise((resolve, reject) => {
-      getLyric(this.mid).then((res, err) => {
-        if (res.code === '0') {
-          this.lyric = res.data.lyric
-          resolve(this.lyric)
+      getLyric(this.rid).then(res => {
+        if (res.status === 200 && res.data !== '') {
+          this.lyric = res.data
+          resolve(res)
         } else {
-          reject(err)
+          reject(new Error('no lyric'))
         }
       })
     })
   }
-}
 
-export async function createSong(musicData) {
-  const url = `/qqapi/music/song?songmid=${musicData.songmid}&guid=126548448`
-  let playUrl = ''
-  const {
-    status,
-    data: { data, code }
-  } = await axios.get(url)
-  if (status === 200 && code === '0') {
-    playUrl = data.musicUrl
+  getPlayUrl() {
+    if (this.rid) {
+      return new Promise((resolve, reject) => {
+        getPlayUrl(this.rid).then(res => {
+          if (res.status === 200 && res.data.code === ERR_OK) {
+            this.url = res.data.data[0]
+            resolve(res.data.data)
+          } else {
+            reject(new Error('查無歌曲'))
+          }
+        })
+      })
+    }
   }
-
-  return new Song({
-    id: musicData.songid,
-    mid: musicData.songmid,
-    singer: filterSinger(musicData.singer),
-    name: musicData.songname,
-    album: musicData.albumname,
-    duration: musicData.interval,
-    image: `https://y.gtimg.cn/music/photo_new/T002R300x300M000${musicData.albummid}.jpg?max_age=2592000`,
-    url: playUrl
-  })
 }
 
-function filterSinger(singer) {
-  const ret = []
-  if (!singer) return ''
-  singer.forEach(singer => {
-    ret.push(singer.name)
+export function createSong(musicData) {
+  return new Song({
+    musicrid: musicData.musicrid,
+    rid: musicData.rid,
+    artist: musicData.artist,
+    name: musicData.name,
+    album: musicData.album,
+    albumid: musicData.albumid,
+    duration: musicData.duration,
+    pic: musicData.pic
   })
-  return ret.join('/')
 }

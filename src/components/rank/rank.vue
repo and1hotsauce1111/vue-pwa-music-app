@@ -2,14 +2,14 @@
   <div class="rank" ref="rank">
     <scroll class="toplist" :data="topList" ref="toplist">
       <ul>
-        <li class="item" v-for="(item, index) in topList" :key="index" @click="selectItem(item)">
+        <li class="item" v-for="item in topList" :key="item.id" @click="selectItem(item)">
           <div class="icon">
-            <img width="100" height="100" v-lazy="item.picUrl" />
+            <img width="100" height="100" v-lazy="item.pic" />
           </div>
           <ul class="songlist">
-            <li class="song" v-for="(song, index) in item.songList" :key="index">
+            <li class="song" v-for="(song, index) in item.musicList" :key="song.musicrid">
               <span>{{ index + 1 }}&nbsp;</span>
-              <span>{{ song.songname }}-{{ song.singername }}</span>
+              <span>{{ song.artist }}-{{ song.album }}</span>
             </li>
           </ul>
         </li>
@@ -22,11 +22,11 @@
   </div>
 </template>
 
-<script type="text/ecmascript-6">
-import { getTopList } from 'api/rank'
-import { ERR_OK } from 'api/config'
+<script>
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
+import { getTopList } from 'api/rank'
+import { ERR_OK } from 'api/config'
 import { playlistMixin } from 'common/js/mixin'
 import { mapMutations } from 'vuex'
 
@@ -42,7 +42,14 @@ export default {
     }
   },
   created() {
-    this._getToopList()
+    this._getTopList()
+  },
+  watch: {
+    topList() {
+      setTimeout(() => {
+        this.$Lazyload.lazyLoadHandler()
+      }, 20)
+    }
   },
   methods: {
     selectItem(item) {
@@ -51,17 +58,24 @@ export default {
       })
       this.setTopList(item)
     },
-    _getToopList() {
-      getTopList().then(res => {
-        if (res.code === ERR_OK) {
-          this.topList = res.data.topList
-        }
-      })
-    },
     handlePlaylist(playlist) {
       const bottom = playlist.length ? '60px' : 0
       this.$refs.rank.style.bottom = bottom
       this.$refs.toplist.refresh()
+    },
+    _getTopList() {
+      getTopList().then(res => {
+        if (res.status === 200 && res.data.code === ERR_OK) {
+          this.topList = this._normalizeTopList(res.data.data)
+        }
+      })
+    },
+    _normalizeTopList(list) {
+      list.forEach(item => {
+        item.musicList = item.musicList.slice(0, 3)
+      })
+
+      return list
     },
     ...mapMutations({
       setTopList: 'SET_TOP_LIST'

@@ -1,20 +1,13 @@
-export const ERR_OK = 0
+export const commonParams = {
+  pn: 1,
+  rn: 30,
+  order: 'new',
+  httpsStatus: 1,
+  reqId: '75513a10-bb65-11ea-9377-bfd1025791be'
+}
 
 export const options = {
-  loginUin: 0,
-  hostUin: 0,
-  format: 'json',
-  inCharset: 'utf8',
-  outCharset: 'utf-8',
-  notice: 0,
-  platform: 'yqq.json',
-  needNewCode: 0
+  param: 'jsonpCallback'
 }
 
-export const commonParams = {
-  g_tk: 1928093487,
-  inCharset: 'utf-8',
-  outCharset: 'utf-8',
-  notice: 0,
-  format: 'jsonp'
-}
+export const ERR_OK = 200

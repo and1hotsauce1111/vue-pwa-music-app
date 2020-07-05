@@ -1,19 +1,23 @@
 <template>
   <div class="search-box">
     <i class="icon-search"></i>
-    <input ref="query" class="box" v-model="query" :placeholder="placeholder" />
-    <i v-show="query" class="icon-dismiss" @click="clear"></i>
+    <input ref="query" v-model="query" type="text" class="box" :placeholder="placeholder" />
+    <i class="icon-dismiss" @click="clear"></i>
   </div>
 </template>
 
-<script type="ecmascript-6">
-import { debounce } from 'common/js/dom'
+<script>
+import { debounce } from 'common/js/utils'
 
 export default {
   props: {
     placeholder: {
       type: String,
-      default: '搜索歌曲、歌手'
+      default: '搜尋歌曲、歌手'
+    },
+    clearQuery: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -24,15 +28,19 @@ export default {
   created() {
     this.$watch(
       'query',
-      debounce(newVal => {
-        this.$emit('query', newVal)
+      debounce(newQuery => {
+        this.$emit('query', newQuery)
       }, 200)
     )
+  },
+  watch: {
+    clearQuery() {
+      this.query = ''
+    }
   },
   methods: {
     clear() {
       this.query = ''
-      this.$emit('clearSuggest')
     },
     setQuery(query) {
       this.query = query
@@ -44,7 +52,7 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped rel="stylesheet/stylus">
+<style lang="stylus" scoped>
 @import '~common/stylus/variable'
 
 .search-box
@@ -52,8 +60,8 @@ export default {
   align-items center
   box-sizing border-box
   width 100%
-  padding 0 6px
-  height 40px
+  padding 0 0.37rem
+  height 2.5rem
   background $color-highlight-background
   border-radius 6px
   .icon-search
@@ -61,14 +69,14 @@ export default {
     color $color-background
   .box
     flex 1
-    margin 0 5px
-    line-height 18px
+    margin 0 0.5rem
+    line-height 1rem
     background $color-highlight-background
     color $color-text
     font-size $font-size-medium
     &::placeholder
       color $color-text-d
   .icon-dismiss
-    font-size 16px
+    font-size 1rem
     color $color-background
 </style>

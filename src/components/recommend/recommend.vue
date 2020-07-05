@@ -1,12 +1,12 @@
 <template>
   <div class="recommend" ref="recommend">
-    <scroll ref="scroll" class="recommend-content" :data="recomPlayList">
+    <scroll ref="scroll" class="recommend-content" :data="discList">
       <div>
         <div class="slider-wrapper">
-          <slider v-if="recommends.length">
-            <div v-for="item in recommends" :key="item.content_id">
+          <slider ref="slider">
+            <div v-for="(item, index) in bannerImg" :key="index">
               <a href="javascript:;">
-                <img @load="bannerImgLoad" :src="item.cover" alt />
+                <img @load="bannerImgLoad" alt="banner" class="needsclick" :src="item" />
               </a>
             </div>
           </slider>
@@ -14,24 +14,19 @@
         <div class="recommend-list">
           <h1 class="list-title">熱門歌單推薦</h1>
           <ul>
-            <li
-              class="item"
-              v-for="(item, index) in recomPlayList"
-              :key="index"
-              @click="selectItem(item)"
-            >
+            <li class="item" v-for="item in discList" :key="item.id" @click="selectItem(item)">
               <div class="icon">
-                <img width="60" height="60" v-lazy="item.cover" alt />
+                <img width="60" height="60" v-lazy="item.img" alt="icon" />
               </div>
               <div class="text">
-                <h2 class="name">{{ item.username }}</h2>
-                <p class="desc">{{ item.title }}</p>
+                <h2 class="name">{{ item.name }}</h2>
+                <p class="desc">{{ item.uname }}</p>
               </div>
             </li>
           </ul>
         </div>
       </div>
-      <div class="laoding-container" v-show="!recomPlayList.length">
+      <div class="laoding-container" v-show="!discList.length">
         <loading />
       </div>
     </scroll>
@@ -39,11 +34,12 @@
   </div>
 </template>
 
-<script type="text/ecmascript-6">
+<script>
 import { mapMutations } from 'vuex'
 import Slider from 'base/slider/slider'
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
+import { ERR_OK } from 'api/config'
 import { getRecommend } from 'api/recommend'
 import { playlistMixin } from 'common/js/mixin'
 
@@ -56,31 +52,46 @@ export default {
   },
   data() {
     return {
-      recommends: [],
-      recomPlayList: []
+      bannerImg: [
+        `${require('@/common/image/banner/banner01.jpg')}`,
+        `${require('@/common/image/banner/banner02.jpg')}`,
+        `${require('@/common/image/banner/banner03.jpg')}`,
+        `${require('@/common/image/banner/banner04.jpg')}`,
+        `${require('@/common/image/banner/banner05.jpg')}`,
+        `${require('@/common/image/banner/banner06.jpg')}`
+      ],
+      discList: []
     }
   },
   created() {
-    getRecommend().then(res => {
-      this.recommends = res.recomPlaylist.data.v_hot
-      this.recomPlayList = res.recomPlaylist.data.v_hot
-    })
+    this._getRecommend()
   },
   methods: {
     selectItem(item) {
+      console.log(item)
       this.$router.push({
-        path: `/recommend/${item.content_id}`
+        path: `/recommend/${item.id}`
       })
       this.setDisc(item)
     },
     bannerImgLoad() {
       // 避免因為獲取非同步資料時 造成better-scroll計算錯誤
-      this.$refs.scroll.refresh()
+      if (!this.checkloaded) {
+        this.checkloaded = true
+        this.$refs.scroll.refresh()
+      }
     },
     handlePlaylist(playlist) {
       const bottom = playlist.length > 0 ? '60px' : 0
       this.$refs.recommend.style.bottom = bottom
       this.$refs.scroll.refresh()
+    },
+    _getRecommend() {
+      getRecommend().then(res => {
+        if (res.status === 200 && res.data.code === ERR_OK) {
+          this.discList = res.data.data.data
+        }
+      })
     },
     ...mapMutations({
       setDisc: 'SET_DISC'
@@ -89,7 +100,7 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped rel="stylesheet/stylus">
+<style lang="stylus" scoped>
 @import '~common/stylus/variable'
 
 .recommend

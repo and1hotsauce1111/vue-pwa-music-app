@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script type="text/ecmascript-6">
+<script>
 import BScroll from 'better-scroll'
 
 export default {
@@ -97,4 +97,4 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped rel="stylesheet/stylus"></style>
+<style lang="stylus" scoped></style>

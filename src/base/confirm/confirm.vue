@@ -5,9 +5,7 @@
         <div class="confirm-content">
           <p class="text">{{ text }}</p>
           <div class="operate">
-            <div class="operate-btn left" @click="cancel">
-              {{ cancelBtnText }}
-            </div>
+            <div class="operate-btn left" @click="cancel">{{ cancelBtnText }}</div>
             <div class="operate-btn" @click="confirm">{{ confirmBtnText }}</div>
           </div>
         </div>
@@ -56,7 +54,7 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped rel="stylesheet/stylus">
+<style lang="stylus" scoped>
 @import '~common/stylus/variable'
 
 .confirm

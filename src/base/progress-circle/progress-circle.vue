@@ -7,13 +7,7 @@
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <circle
-        class="progress-background"
-        r="50"
-        cx="50"
-        cy="50"
-        fill="transparent"
-      />
+      <circle class="progress-background" r="50" cx="50" cy="50" fill="transparent" />
       <circle
         class="progress-bar"
         r="50"
@@ -53,18 +47,18 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped rel="stylesheet/stylus">
-@import "~common/stylus/variable"
+<style lang="stylus" scoped>
+@import '~common/stylus/variable'
 
 .progress-circle
-  position: relative
+  position relative
   circle
-    stroke-width: 8px
-    transform-origin: center
+    stroke-width 8px
+    transform-origin center
     &.progress-background
-      transform: scale(0.9)
-      stroke: $color-theme-d
+      transform scale(0.9)
+      stroke $color-theme-d
     &.progress-bar
-      transform: scale(0.9) rotate(-90deg)
-      stroke: $color-theme
+      transform scale(0.9) rotate(-90deg)
+      stroke $color-theme
 </style>

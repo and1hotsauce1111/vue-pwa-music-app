@@ -1,47 +1,34 @@
-import jsonp from 'common/js/jsonp'
+import axios from 'axios'
 import { commonParams } from './config'
 
 export function getHotKey() {
-  const url = '/cApi/splcloud/fcgi-bin/gethotkey.fcg'
+  const url = '/api/www/search/searchKey'
 
-  const data = Object.assign({}, commonParams, {
-    platform: 'h5',
-    needNewCode: 1
+  const params = Object.assign({}, commonParams, {
+    key: ''
   })
 
-  const option = {
-    param: 'jsonpCallback',
-    prefix: 'MusicJsonCallback'
-  }
-
-  return jsonp(url, data, option)
+  return axios.get(url, {
+    params
+  })
 }
 
-export function search(query, page, zhida, perpage) {
-  const url = '/cApi/soso/fcgi-bin/search_for_qq_cp'
-
-  const data = Object.assign({}, commonParams, {
-    w: query,
-    p: page,
-    catZhida: zhida ? 1 : 0,
-    zhidaqu: 1,
-    t: 0,
-    flag: 1,
-    ie: 'utf-8',
-    sem: 1,
-    aggr: 0,
-    perpage,
-    n: perpage,
-    remoteplace: 'txt.mqq.all',
-    uid: 0,
-    needNewCode: 1,
-    platform: 'h5'
-  })
-
-  const option = {
-    param: 'jsonpCallback',
-    prefix: 'MusicJsonCallback'
+export function search(type, key, pn, rn) {
+  let url = type !== '' ? '' : '/api/search/searchArtistBykeyWord'
+  if (type === '歌曲') {
+    url = '/api/www/search/searchMusicBykeyWord'
+  }
+  if (type === '歌手') {
+    url = '/api/www/search/searchArtistBykeyWord'
   }
 
-  return jsonp(url, data, option)
+  const params = Object.assign({}, commonParams, {
+    key,
+    pn,
+    rn
+  })
+
+  return axios.get(url, {
+    params
+  })
 }

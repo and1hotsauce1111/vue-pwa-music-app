@@ -14,7 +14,7 @@
   </div>
 </template>
 
-<script type="text/ecmascript-6">
+<script>
 export default {
   props: {
     songs: {
@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     getDesc(song) {
-      return `${song.singer}·${song.album}`
+      return `${song.artist}·${song.album}`
     },
     selectItem(item, index) {
       this.$emit('select', item, index)
@@ -51,7 +51,7 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped rel="stylesheet/stylus">
+<style lang="stylus" scoped>
 @import '~common/stylus/variable'
 @import '~common/stylus/mixin'
 

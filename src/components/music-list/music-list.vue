@@ -6,13 +6,15 @@
     <h1 class="title" v-html="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
       <div class="play-wrapper">
-        <div class="play" ref="playBtn" v-if="songs.length === songsNum" @click="random">
+        <div class="play" ref="playBtn" v-show="songs.length > 0" @click="random">
           <i class="icon-play"></i>
           <span class="text">隨機播放全部</span>
         </div>
       </div>
+      <!-- 高斯模糊用 -->
       <div class="filter" ref="filter"></div>
     </div>
+    <!-- 隨滾動調整banner高度用 -->
     <div class="bg-layer" ref="layer"></div>
     <scroll
       :probeType="probeType"
@@ -22,10 +24,10 @@
       ref="list"
       @scroll="scroll"
     >
-      <div class="song-list-wrapper" v-show="songs.length === songsNum">
+      <div class="song-list-wrapper">
         <song-list v-on:select="selectItem" :songs="songs" :rank="rank"></song-list>
       </div>
-      <div class="loading-container" v-show="songs.length < songsNum">
+      <div class="loading-container" v-show="!songs.length">
         <loading />
       </div>
     </scroll>
@@ -40,7 +42,8 @@ import { prefixStyle } from 'common/js/dom'
 import { mapActions } from 'vuex'
 import { playlistMixin } from 'common/js/mixin'
 
-const RESERVED_HEIGHT = 40
+// 滾動至最上方保留的背景圖高度 大約等於title area高度
+const RESERVED_HEIGHT = 50
 const transform = prefixStyle('transform')
 const backdrop =
   prefixStyle('backdrop-filter') === 'webkitBackdrop-filter'
@@ -156,7 +159,7 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped rel="stylesheet/stylus">
+<style lang="stylus" scoped>
 @import '~common/stylus/variable'
 @import '~common/stylus/mixin'
 

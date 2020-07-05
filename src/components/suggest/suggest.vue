@@ -1,14 +1,14 @@
 <template>
   <scroll
+    ref="suggest"
     class="suggest"
     :data="result"
     :pullup="pullup"
     :beforeScroll="beforeScroll"
     @scrollToEnd="searchMore"
     @beforeScroll="listScroll"
-    ref="suggest"
   >
-    <ul class="suggest-list" v-show="result.length === resultNum">
+    <ul class="suggest-list">
       <li
         class="suggest-item"
         v-for="(item, index) in result"
@@ -16,40 +16,36 @@
         @click="selectItem(item)"
       >
         <div class="icon">
-          <i :class="getIconClass(item)"></i>
+          <i :class="_getIconClass()"></i>
         </div>
         <div class="name">
-          <p class="text" v-html="getDisplayName(item)"></p>
+          <p class="text" v-html="_getDisplayName(item)"></p>
         </div>
       </li>
+      <loading v-show="hasMore" title />
     </ul>
-    <div class="no-result-wrapper" v-show="!hasMore && !result.length">
-      <no-result title="抱歉，暫時搜索結果"></no-result>
-    </div>
-    <loading v-show="hasMore && result.length !== 0" title />
-    <div class="loading-container" v-show="result.length < resultNum">
-      <loading />
+    <div v-show="!hasMore && result.length === 0" class="no-result-wrapper">
+      <no-result title="抱歉，暫無搜尋結果" />
     </div>
   </scroll>
 </template>
 
-<script type="ecmascript-6">
-import { mapMutations, mapActions } from 'vuex'
-import { search } from 'api/search'
-import { ERR_OK } from 'api/config'
-import { createSong } from 'common/js/song'
-import Loading from 'base/loading/loading'
+<script>
 import Scroll from 'base/scroll/scroll'
-import Singer from 'common/js/singer'
+import Loading from 'base/loading/loading'
 import NoResult from 'base/no-result/no-result'
+import { ERR_OK } from 'api/config'
+import { search } from 'api/search'
+import { createSong } from 'common/js/song'
+import Singer from 'common/js/singer'
+import { mapMutations } from 'vuex'
 
-const TYPE_SINGER = 'singer'
 const PER_PAGE = 20
 
 export default {
   components: {
-    Loading,
     Scroll,
+    Loading,
     NoResult
   },
   props: {
@@ -57,134 +53,138 @@ export default {
       type: String,
       default: ''
     },
-    showSinger: {
-      type: Boolean,
-      default: true
-    },
-    clearSuggest: {
-      type: Boolean,
-      default: false
+    searchType: {
+      type: String,
+      default: '歌曲'
     }
   },
   data() {
     return {
       page: 1,
-      result: [],
-      resultNum: 0,
-      pullup: true,
+      pullup: true, // 上拉加載
+      beforeScroll: true,
       hasMore: true,
-      beforeScroll: true
+      result: []
     }
   },
   watch: {
-    query() {
-      this.search()
+    query(newQuery) {
+      if (newQuery !== '') {
+        this._search(newQuery)
+      }
     },
-    clearSuggest() {
+    searchType() {
       this.result = []
     }
   },
   methods: {
-    search() {
-      this.page = 1
-      this.hasMore = true
-      this.$refs.suggest.scrollTo(0, 0)
-      search(this.query, this.page, this.showSinger, PER_PAGE).then(res => {
-        if (res.code === ERR_OK) {
-          this.resultNum = res.data.song.curnum
-          this._genResult(res.data)
-          this._checkMore(res.data)
-        }
-      })
-    },
-    searchMore() {
-      if (!this.hasMore) return false
-      this.page++
-      search(this.query, this.page, this.showSinger, PER_PAGE).then(res => {
-        if (res.code === ERR_OK) {
-          this.resultNum += res.data.song.curnum
-          this._genResult(res.data)
-          this._checkMore(res.data)
-        }
-      })
-    },
-    selectItem(item) {
-      if (item.type === TYPE_SINGER) {
-        const singer = new Singer({
-          id: item.signermid,
-          name: item.singername
-        })
-        this.$router.push({
-          path: `/search/${singer.id}`
-        })
-        this.setSinger(singer)
-      } else {
-        this.insertSong(item)
-      }
-      // 儲存歷史搜索歷史
-      this.$emit('select')
+    refresh() {
+      this.$refs.suggest.refresh()
     },
     listScroll() {
       this.$emit('listScroll')
     },
-    refresh() {
-      this.$refs.suggest.refresh()
+    searchMore() {
+      if (!this.hasMore) return false
+      this.page++
+      search(this.searchType, this.query, this.page, PER_PAGE).then(res => {
+        if (res.status === 200 && res.data.code === ERR_OK) {
+          if (this.searchType === '歌曲') {
+            this.result = this.result.concat(
+              this._normalizeSongs(res.data.data.list)
+            )
+            this._checkMore(res.data.data)
+          }
+          if (this.searchType === '歌手') {
+            this.result = this.result.concat(
+              this._normalizeSinger(res.data.data.artistList)
+            )
+          }
+        }
+      })
     },
-    _genResult(data) {
-      const ret = []
-      if (data.zhida && data.zhida.singerid) {
-        ret.push({ ...data.zhida, ...{ type: TYPE_SINGER } })
-      }
-      if (data.song) {
-        this.result.concat(ret)
-        this._normalizeSongs(data.song.list).forEach(song => {
-          song.then(res => {
-            this.result.push(res)
-          })
+    selectItem(item) {
+      if (this.searchType === '歌手') {
+        this.$router.push({
+          path: `/search/${item.id}`
         })
+        this.setSinger(item)
       }
+      // 歌曲
+      this.$emit('select', item)
+    },
+    _search() {
+      this.page = 1
+      this.hasMore = true
+      this.$refs.suggest.scrollTo(0, 0)
+      search(this.searchType, this.query, this.page, PER_PAGE).then(res => {
+        console.log(res)
+        if (res.status === 200 && res.data.code === ERR_OK) {
+          if (this.searchType === '歌曲') {
+            this.result = this._normalizeSongs(res.data.data.list)
+            this._checkMore(res.data.data)
+          }
+          if (this.searchType === '歌手') {
+            this.result = this._normalizeSinger(res.data.data.artistList)
+            this._checkMore(res.data.data)
+          }
+        }
+      })
     },
     _normalizeSongs(list) {
       const ret = []
       list.forEach(musicData => {
-        if (musicData.songid && musicData.albumid) {
+        if (musicData.musicrid && musicData.rid) {
           ret.push(createSong(musicData))
         }
       })
       return ret
     },
-    _checkMore(data) {
-      const song = data.song
-      if (
-        !song.list.length ||
-        song.curnum + song.curpage * PER_PAGE >= song.totalnum
-      ) {
+    _normalizeSinger(list) {
+      const ret = []
+      list.forEach(musicData => {
+        if (musicData.id) {
+          ret.push(
+            new Singer({
+              id: musicData.id,
+              name: musicData.name,
+              pic: musicData.pic300
+            })
+          )
+        }
+      })
+      return ret
+    },
+    _checkMore(list) {
+      const song = list.list
+      if (song.length === 0 || this.result.length + song.length > list.total) {
         this.hasMore = false
       }
     },
-    getIconClass(item) {
-      if (item.type === TYPE_SINGER) {
+    _getIconClass() {
+      if (this.searchType === '歌手') {
         return 'icon-mine'
-      } else {
+      }
+      if (this.searchType === '歌曲') {
         return 'icon-music'
       }
     },
-    getDisplayName(item) {
-      if (item.type === TYPE_SINGER) {
-        return item.singername
-      } else {
-        return `${item.name}-${item.singer}`
+    _getDisplayName(item) {
+      if (this.searchType === '歌手') {
+        return item.name
+      }
+      if (this.searchType === '歌曲') {
+        return `${item.name}-${item.artist}`
       }
     },
     ...mapMutations({
       setSinger: 'SET_SINGER'
-    }),
-    ...mapActions(['insertSong'])
+    })
   }
 }
 </script>
 
-<style lang="stylus" scoped rel="stylesheet/stylus">
+<style lang="stylus" scoped>
 @import '~common/stylus/variable'
 @import '~common/stylus/mixin'
 
@@ -210,11 +210,6 @@ export default {
       overflow hidden
       .text
         no-wrap()
-  .loading-container
-    position absolute
-    width 100%
-    top 50%
-    transform translateY(-50%)
   .no-result-wrapper
     position absolute
     width 100%

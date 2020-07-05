@@ -1,38 +1,22 @@
-import jsonp from 'common/js/jsonp'
+import axios from 'axios'
 import { commonParams } from './config'
 
 export function getTopList() {
-  const url = '/cApi/v8/fcg-bin/fcg_myqq_toplist.fcg'
+  const url = '/api/www/bang/index/bangList'
 
-  const data = Object.assign({}, commonParams, {
-    playform: 'h5',
-    needNewCode: 1
+  return axios.get(url, {
+    params: commonParams
   })
-
-  const option = {
-    param: 'jsonpCallback',
-    prefix: 'MusicJsonCallback'
-  }
-
-  return jsonp(url, data, option)
 }
 
-export function getMusicList(topid) {
-  const url = '/cApi/v8/fcg-bin/fcg_v8_toplist_cp.fcg'
+export function getMusicList(bangId) {
+  const url = '/api/www/bang/bang/musicList'
 
-  const data = Object.assign({}, commonParams, {
-    playform: 'h5',
-    needNewCode: 1,
-    page: 'detail',
-    tpl: 3,
-    type: 'top',
-    topid
+  const params = Object.assign({}, commonParams, {
+    bangId
   })
 
-  const option = {
-    param: 'jsonpCallback',
-    prefix: 'MusicJsonCallback'
-  }
-
-  return jsonp(url, data, option)
+  return axios.get(url, {
+    params
+  })
 }

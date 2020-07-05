@@ -3,16 +3,16 @@
     <li
       class="switch-item"
       v-for="(item, index) in switches"
+      :class="{ active: currentIndex === index }"
       :key="index"
-      :class="{ 'active': currentIndex === index }"
-      @click="swtichItem(index)"
+      @click="switchItem(index)"
     >
       <span>{{ item.name }}</span>
     </li>
   </ul>
 </template>
 
-<script type="ecmascript-6">
+<script>
 export default {
   props: {
     switches: {
@@ -27,14 +27,14 @@ export default {
     }
   },
   methods: {
-    swtichItem(index) {
+    switchItem(index) {
       this.$emit('switch', index)
     }
   }
 }
 </script>
 
-<style lang="stylus" scoped rel="stylesheet/stylus">
+<style scoped lang="stylus">
 @import '~common/stylus/variable'
 
 .switches
