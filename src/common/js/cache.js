@@ -51,7 +51,7 @@ export function clearSearch() {
 
 export function savePlaySong(song) {
   const songs = storage.get(PLAY_KEY, [])
-  insertArray(songs, song, item => item.id === song.id, PLAY_MAX_LEN)
+  insertArray(songs, song, item => item.rid === song.rid, PLAY_MAX_LEN)
   storage.set(PLAY_KEY, songs)
   return songs
 }
@@ -62,14 +62,14 @@ export function loadPlay() {
 
 export function saveFavorite(song) {
   const songs = storage.get(FAVORITE_KEY, [])
-  insertArray(songs, song, item => item.id === song.id, FAVORITE_MAX_LEN)
+  insertArray(songs, song, item => item.rid === song.rid, FAVORITE_MAX_LEN)
   storage.set(FAVORITE_KEY, songs)
   return songs
 }
 
 export function deleteFavorite(song) {
   const songs = storage.get(FAVORITE_KEY, [])
-  deleteFromArray(songs, item => song.id === item.id)
+  deleteFromArray(songs, item => song.rid === item.rid)
   storage.set(FAVORITE_KEY, songs)
   return songs
 }

@@ -21,7 +21,7 @@
             <li
               class="item"
               v-for="(item, index) in sequenceList"
-              :key="index"
+              :key="item.rid"
               @click="selectItem(item, index)"
               ref="listItem"
             >
@@ -86,7 +86,7 @@ export default {
   },
   watch: {
     currentSong(newSong, oldSong) {
-      if (!this.showFlag || newSong.id === oldSong.id) return false
+      if (!this.showFlag || newSong.rid === oldSong.rid) return false
       this.scrollToCurrent(newSong)
     }
   },
@@ -103,7 +103,7 @@ export default {
     },
     selectItem(item, index) {
       if (this.mode === playMode.random) {
-        index = this.playlist.findIndex(song => song.id === item.id)
+        index = this.playlist.findIndex(song => song.rid === item.rid)
       }
       this.setCurrentIndex(index)
       this.setPlayingState(true)
@@ -118,7 +118,7 @@ export default {
       this.$refs.addSong.show()
     },
     getCurrentIcon(item) {
-      if (this.currentSong.id === item.id) {
+      if (this.currentSong.rid === item.rid) {
         return 'icon-play'
       }
       return ''
@@ -131,7 +131,9 @@ export default {
       this.hide()
     },
     scrollToCurrent(current) {
-      const index = this.sequenceList.findIndex(list => list.id === current.id)
+      const index = this.sequenceList.findIndex(
+        list => list.rid === current.rid
+      )
       this.$refs.listContent.scrollToElement(this.$refs.listItem[index], 300)
     },
     ...mapActions(['deleteSong', 'deleteSongList'])

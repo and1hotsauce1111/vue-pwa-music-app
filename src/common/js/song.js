@@ -35,7 +35,6 @@ export default class Song {
       return new Promise((resolve, reject) => {
         getPlayUrl(this.rid).then(res => {
           if (res.status === 200 && res.data.code === ERR_OK) {
-            this.url = res.data.data[0]
             resolve(res.data.data)
           } else {
             reject(new Error('查無歌曲'))

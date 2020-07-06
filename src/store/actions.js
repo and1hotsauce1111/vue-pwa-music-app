@@ -28,6 +28,14 @@ export const selectPlay = ({ commit, state }, { list, index }) => {
   commit(types.SET_PLAYING_STATE, true)
 }
 
+export const cancelPlay = ({ commit }) => {
+  commit(types.SET_SEQUENCE_LIST, [])
+  commit(types.SET_PLAYLIST, [])
+  commit(types.SET_CURRENT_INDEX, -1)
+  commit(types.SET_FULL_SCREEN, false)
+  commit(types.SET_PLAYING_STATE, false)
+}
+
 export const randomPlay = ({ commit }, { list }) => {
   commit(types.SET_PLAY_MODE, playMode.random)
   commit(types.SET_SEQUENCE_LIST, list)

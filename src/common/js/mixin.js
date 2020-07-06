@@ -57,7 +57,7 @@ export const playerMixin = {
       this.setPlayList(list)
     },
     resetCurrentIndex(list) {
-      const index = list.findIndex(item => item.id === this.currentSong.id)
+      const index = list.findIndex(item => item.rid === this.currentSong.rid)
       this.setCurrentIndex(index)
     },
     getFavoriteIcon(song) {
@@ -74,7 +74,7 @@ export const playerMixin = {
       }
     },
     isFavorite(song) {
-      const index = this.favoriteList.findIndex(item => item.id === song.id)
+      const index = this.favoriteList.findIndex(item => item.rid === song.rid)
       return index > -1
     },
     ...mapMutations({
@@ -103,7 +103,6 @@ export const searchMixin = {
       this.$refs.searchBox.setQuery(query)
     },
     blurInput() {
-      console.log('blur')
       this.$refs.searchBox.blur()
     },
     saveSearch() {

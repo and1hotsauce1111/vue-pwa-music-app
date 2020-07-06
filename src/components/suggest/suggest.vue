@@ -38,7 +38,7 @@ import { ERR_OK } from 'api/config'
 import { search } from 'api/search'
 import { createSong } from 'common/js/song'
 import Singer from 'common/js/singer'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapActions } from 'vuex'
 
 const PER_PAGE = 20
 
@@ -111,6 +111,12 @@ export default {
         this.setSinger(item)
       }
       // 歌曲
+      if (this.searchType === '歌曲') {
+        this.$router.push({
+          path: `/singer/${item.rid}`
+        })
+        this.insertSong(item)
+      }
       this.$emit('select', item)
     },
     _search() {
@@ -118,7 +124,6 @@ export default {
       this.hasMore = true
       this.$refs.suggest.scrollTo(0, 0)
       search(this.searchType, this.query, this.page, PER_PAGE).then(res => {
-        console.log(res)
         if (res.status === 200 && res.data.code === ERR_OK) {
           if (this.searchType === '歌曲') {
             this.result = this._normalizeSongs(res.data.data.list)
@@ -132,6 +137,7 @@ export default {
       })
     },
     _normalizeSongs(list) {
+      if (!list.length) return false
       const ret = []
       list.forEach(musicData => {
         if (musicData.musicrid && musicData.rid) {
@@ -141,6 +147,7 @@ export default {
       return ret
     },
     _normalizeSinger(list) {
+      if (!list.length) return false
       const ret = []
       list.forEach(musicData => {
         if (musicData.id) {
@@ -179,7 +186,8 @@ export default {
     },
     ...mapMutations({
       setSinger: 'SET_SINGER'
-    })
+    }),
+    ...mapActions(['insertSong'])
   }
 }
 </script>

@@ -9,14 +9,14 @@
     >
       <div class="normal-player" v-show="fullScreen">
         <div class="background">
-          <img width="100%" height="100%" :src="currentSong.image" />
+          <img width="100%" height="100%" :src="currentSong.pic" />
         </div>
         <div class="top">
           <div class="back" @click="back">
             <i class="icon-back"></i>
           </div>
           <h1 class="title" v-html="currentSong.name"></h1>
-          <h2 class="subtitle" v-html="currentSong.singer"></h2>
+          <h2 class="subtitle" v-html="currentSong.artist"></h2>
         </div>
         <div
           class="middle"
@@ -27,7 +27,7 @@
           <div class="middle-l" ref="cdPlay">
             <div class="cd-wrapper" ref="cdWrapper">
               <div class="cd" :class="cdRotate">
-                <img class="image" :src="currentSong.image" />
+                <img class="image" :src="currentSong.pic" />
               </div>
             </div>
             <div class="playing-lyric-wrapper">
@@ -87,11 +87,11 @@
     <transition name="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
         <div class="icon">
-          <img :class="cdRotate" width="40" height="40" :src="currentSong.image" />
+          <img :class="cdRotate" width="40" height="40" :src="currentSong.pic" />
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"></h2>
-          <p class="desc" v-html="currentSong.singer"></p>
+          <p class="desc" v-html="currentSong.artist"></p>
         </div>
         <div class="control" @click.stop="togglePlaying">
           <progress-circle :radius="radius" :percent="percent">
@@ -104,14 +104,7 @@
       </div>
     </transition>
     <playlist ref="playlist" />
-    <audio
-      ref="audio"
-      :src="currentSong.url"
-      @play="ready"
-      @error="error"
-      @timeupdate="updateTime"
-      @ended="end"
-    ></audio>
+    <audio ref="audio" @play="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
   </div>
 </template>
 
@@ -120,10 +113,10 @@ import animations from 'create-keyframe-animation'
 import Lyric from 'lyric-parser'
 import Scroll from 'base/scroll/scroll'
 import Playlist from 'components/playlist/playlist'
-import { mapGetters, mapMutations, mapActions } from 'vuex'
-import { prefixStyle } from 'common/js/dom'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { prefixStyle } from 'common/js/dom'
 import { playMode } from 'common/js/config'
 import { playerMixin } from 'common/js/mixin'
 
@@ -147,7 +140,8 @@ export default {
       currentLineNum: 0,
       currentShow: 'cd',
       // 當前歌詞
-      playingLyric: ''
+      playingLyric: '',
+      playUrl: ''
     }
   },
   computed: {
@@ -170,8 +164,8 @@ export default {
   },
   watch: {
     currentSong(newVal, oldVal) {
-      if (!newVal.id) return false
-      if (newVal.id === oldVal.id) return false
+      if (!newVal.rid) return false
+      if (newVal.rid === oldVal.rid) return false
       // 清空Lyric實例
       if (this.currentLyric) {
         this.currentLyric.stop()
@@ -179,8 +173,8 @@ export default {
       // 使用setTimeout 因為有些手機播放切換時會有js執行的延遲
       clearTimeout(this.timer)
       this.timer = setTimeout(() => {
-        this.$refs.audio.play()
-        this.getLyric(newVal.id)
+        this.getPlayUrl()
+        this.getLyric(newVal.rid)
       }, 1000)
     },
     playing(newPlaying) {
@@ -250,9 +244,8 @@ export default {
     },
     error() {
       alert('該歌曲載入錯誤，將導回歌曲列表！')
-      this.$router.push({
-        path: '/singer'
-      })
+      this.cancelPlay()
+      this.$router.back()
     },
     togglePlaying() {
       if (!this.songReady) return false
@@ -376,15 +369,15 @@ export default {
     },
     // 為了切換播放模式時 保持當前播放的song index
     resetCurrentIndex(list) {
-      const index = list.findIndex(item => item.id === this.currentSong.id)
+      const index = list.findIndex(item => item.rid === this.currentSong.rid)
       this.setCurrentIndex(index)
     },
-    getLyric(songid) {
+    getLyric() {
       this.currentSong
-        .getLyric(songid)
+        .getLyric()
         .then(lyric => {
-          if (this.currentSong.lyric !== lyric) return false
-          this.currentLyric = new Lyric(lyric, this.handleLyric)
+          // if (this.currentSong.lyric !== lyric.data) return false
+          this.currentLyric = new Lyric(lyric.data, this.handleLyric)
           if (this.playing) {
             this.currentLyric.play()
           }
@@ -394,6 +387,23 @@ export default {
           this.playingLyric = ''
           this.currentLineNum = 0
         })
+    },
+    getPlayUrl() {
+      if (Object.keys(this.currentSong).length !== 0) {
+        this.currentSong
+          .getPlayUrl()
+          .then(res => {
+            this.playUrl = res[0]
+            this.$refs.audio.src = res[0]
+            this.$refs.audio.play()
+          })
+          .catch(e => {
+            this.playUrlErr = e
+            alert('該歌曲載入錯誤，將導回歌曲列表！')
+            this.cancelPlay()
+            this.$router.back()
+          })
+      }
     },
     handleLyric({ lineNum, txt }) {
       this.currentLineNum = lineNum
@@ -437,7 +447,7 @@ export default {
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN'
     }),
-    ...mapActions(['savePlayHistory'])
+    ...mapActions(['savePlayHistory', 'cancelPlay'])
   }
 }
 </script>

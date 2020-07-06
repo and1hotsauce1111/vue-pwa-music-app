@@ -68,7 +68,6 @@ export default {
   },
   methods: {
     selectItem(item) {
-      console.log(item)
       this.$router.push({
         path: `/recommend/${item.id}`
       })
