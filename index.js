@@ -3,7 +3,7 @@ const path = require('path')
 const serveStatic = require('serve-static')
 const { createProxyMiddleware } = require('http-proxy-middleware')
 
-解決上線後跨域的問題
+// 解決上線後跨域的問題
 const options = {
   target: 'http://www.kuwo.cn/',
   changeOrigin: true,
