@@ -32,7 +32,7 @@ app.all('*', function(req, res, next) {
   next()
 })
 
-app.use('/api', proxy)
+// app.use('/api', proxy)
 app.use(serveStatic(path.join(__dirname, 'dist')))
 
 const port = process.env.PORT || 8000
