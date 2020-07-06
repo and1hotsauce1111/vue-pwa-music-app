@@ -23,6 +23,12 @@ const proxy = createProxyMiddleware(options)
 
 const app = express()
 
+app.use(
+  history({
+    htmlAcceptHeaders: ['text/html', 'application/xhtml+xml']
+  })
+)
+
 app.use('^/api', proxy)
 app.use(serveStatic(path.join(__dirname, 'dist')))
 
