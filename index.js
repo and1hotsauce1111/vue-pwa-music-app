@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const serveStatic = require('serve-static')
 const { createProxyMiddleware } = require('http-proxy-middleware')
+const history = require('connect-history-api-fallback')
 
 // 解決上線後跨域的問題
 const options = {
