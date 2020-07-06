@@ -24,6 +24,7 @@ const proxy = createProxyMiddleware(options)
 
 const app = express()
 
+// 解決上線後history模式下 頁面無法訪問的問題
 app.use(
   history({
     htmlAcceptHeaders: ['text/html', 'application/xhtml+xml']
