@@ -15,6 +15,59 @@ module.exports = {
       }
     }
   },
+  pwa: {
+    name: 'RockChicken Music',
+    themeColor: '#ffcd32',
+    appleMobileWebAppCapable: 'yes',
+    appleMobileWebAppStatusBarStyle: '#ffcd32',
+    workboxPluginMode: 'InjectManifest',
+    workboxOptions: {
+      swSrc: 'src/sw.js'
+    },
+    manifestOptions: {
+      name: 'RockChicken Music',
+      short_name: 'Music',
+      start_url: '/index.html',
+      display: 'standalone',
+      background_color: '#333',
+      theme_color: '#ffcd32',
+      orientation: 'portrait',
+      icons: [
+        {
+          src: './img/logo@16x16.png',
+          size: '16x16',
+          type: 'image/png'
+        },
+        {
+          src: './img/logo@32x32.png',
+          size: '32x32',
+          type: 'image/png'
+        },
+        {
+          src: './img/logo@152x152.png',
+          size: '152x152',
+          type: 'image/png'
+        },
+        {
+          src: './img/logo@144x144.png',
+          size: '144x144',
+          type: 'image/png'
+        },
+        {
+          src: './img/logo@942x942.png',
+          size: '942x942',
+          type: 'image/png'
+        }
+      ]
+    },
+    iconPaths: {
+      favicon32: 'src/common/image/logo/logo@32x32.png',
+      favicon16: 'src/common/image/logo/logo@16x16.png',
+      appleTouchIcon: 'src/common/image/logo/logo@32x32.png',
+      maskIcon: 'src/common/image/logo/logo@32x32.png',
+      msTileImage: 'src/common/image/logo/logo@32x32.png'
+    }
+  },
   devServer: {
     proxy: {
       '/api': {
