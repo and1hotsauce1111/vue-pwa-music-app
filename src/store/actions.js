@@ -11,7 +11,7 @@ import {
 } from 'common/js/cache'
 
 function findIndex(list, song) {
-  return list.findIndex(item => item.id === song.id)
+  return list.findIndex(item => item.rid === song.rid)
 }
 
 export const selectPlay = ({ commit, state }, { list, index }) => {
@@ -49,6 +49,7 @@ export const randomPlay = ({ commit }, { list }) => {
 export const insertSong = function({ commit, state }, song) {
   const playlist = state.playlist.slice()
   const sequenceList = state.sequenceList.slice()
+  console.log(sequenceList)
   let currentIndex = state.currentIndex
 
   // 紀錄當前歌曲
@@ -71,7 +72,7 @@ export const insertSong = function({ commit, state }, song) {
   // sequenceList 要插入的位置
   const currentSIndex = findIndex(sequenceList, currentSong) + 1
   const fsIndex = findIndex(sequenceList, song)
-  sequenceList.splice(currentSong, 0, song)
+  sequenceList.splice(currentSIndex, 0, song)
 
   if (fsIndex > -1) {
     if (currentSIndex > fsIndex) {
@@ -80,6 +81,9 @@ export const insertSong = function({ commit, state }, song) {
       sequenceList.splice(fsIndex + 1, 1)
     }
   }
+
+  console.log('playlist', playlist)
+  console.log('sequenceList', sequenceList)
 
   commit(types.SET_PLAYLIST, playlist)
   commit(types.SET_SEQUENCE_LIST, sequenceList)
