@@ -6,8 +6,4 @@ export const commonParams = {
   reqId: '75513a10-bb65-11ea-9377-bfd1025791be'
 }
 
-export const options = {
-  param: 'jsonpCallback'
-}
-
 export const ERR_OK = 200

@@ -19,7 +19,6 @@
     "fastclick": "^1.0.6",
     "good-storage": "^1.1.1",
     "http-proxy-middleware": "^1.0.4",
-    "jsonp": "^0.2.1",
     "lyric-parser": "^1.0.1",
     "register-service-worker": "^1.7.1",
     "vue": "^2.6.11",
