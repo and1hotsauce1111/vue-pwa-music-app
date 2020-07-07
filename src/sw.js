@@ -22,3 +22,8 @@ workbox.routing.registerRoute(
   new RegExp('/styles/.*\\.css'),
   workbox.strategies.networkFirst()
 )
+
+workbox.routing.registerRoute(
+  new RegExp('/(https?://)(.*)/api/(.*)/'),
+  workbox.strategies.networkFirst()
+)

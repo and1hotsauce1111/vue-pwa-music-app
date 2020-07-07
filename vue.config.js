@@ -26,7 +26,6 @@ module.exports = {
     },
     manifestOptions: {
       name: 'RockChicken Music',
-      short_name: 'Music',
       start_url: '/index.html',
       display: 'standalone',
       background_color: '#333',
@@ -34,38 +33,38 @@ module.exports = {
       orientation: 'portrait',
       icons: [
         {
-          src: './img/logo@16x16.png',
+          src: './img/logo/logo@16x16.png',
           size: '16x16',
           type: 'image/png'
         },
         {
-          src: './img/logo@32x32.png',
+          src: './img/logo/logo@32x32.png',
           size: '32x32',
           type: 'image/png'
         },
         {
-          src: './img/logo@152x152.png',
+          src: './img/logo/logo@152x152.png',
           size: '152x152',
           type: 'image/png'
         },
         {
-          src: './img/logo@144x144.png',
+          src: './img/logo/logo@144x144.png',
           size: '144x144',
           type: 'image/png'
         },
         {
-          src: './img/logo@942x942.png',
+          src: './img/logo/logo@942x942.png',
           size: '942x942',
           type: 'image/png'
         }
       ]
     },
     iconPaths: {
-      favicon32: 'src/common/image/logo/logo@32x32.png',
-      favicon16: 'src/common/image/logo/logo@16x16.png',
-      appleTouchIcon: 'src/common/image/logo/logo@32x32.png',
-      maskIcon: 'src/common/image/logo/logo@32x32.png',
-      msTileImage: 'src/common/image/logo/logo@32x32.png'
+      favicon32: './img/logo/logo@144x144.png',
+      favicon16: './img/logo/logo@144x144.png',
+      appleTouchIcon: './img/logo/logo@144x144.png',
+      maskIcon: './img/logo/logo@144x144.png',
+      msTileImage: './img/logo/logo@144x144.png'
     }
   },
   devServer: {
