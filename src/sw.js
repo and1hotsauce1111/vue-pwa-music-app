@@ -1,8 +1,3 @@
-import { CacheFirst } from 'workbox-strategies'
-import { CacheableResponsePlugin } from 'workbox-cacheable-response'
-
-workbox.setConfig({ debug: true })
-
 if (workbox) {
   console.log(`Workbox is loaded`)
   workbox.precaching.precacheAndRoute(self.__precacheManifest)
@@ -26,12 +21,5 @@ workbox.routing.registerRoute(
 
 workbox.routing.registerRoute(
   new RegExp('/(https?://)(.*)/api/(.*)/'),
-  new CacheFirst({
-    cacheName: 'api-request',
-    plugins: [
-      new CacheableResponsePlugin({
-        statuses: [0, 200]
-      })
-    ]
-  })
+  workbox.strategies.staleWhileRevalidate()
 )
