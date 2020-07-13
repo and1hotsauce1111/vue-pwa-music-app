@@ -18,4 +18,4 @@
 - [x] 歌曲播放模式(單曲循環、隨機播放、順序播放)
 - [x] 添加歌曲至我的最愛 / 添加播放清單
 
-<a href="https://jameslin-vue-pwa-music-app.herokuapp.com/">線上Demo</a>
+<a href="https://and1hotsauce1111.github.io/vue-pwa-music-app/recommend">線上Demo</a>
